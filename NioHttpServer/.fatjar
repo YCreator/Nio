@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Mon Nov 09 15:29:19 GMT+08:00 2015
+onejar.license.required=false
+manifest.classpath=lib/netty-all-4.0.23.Final.jar lib/commons-codec-1.7.jar
+manifest.removesigners=true
+onejar.checkbox=false
+jarname=NioHttpServer.jar
+manifest.mergeall=true
+manifest.mainclass=NioHttpServer
+manifest.file=<createnew>
+jarname.isextern=false
+onejar.expand=
+excludes=<jar|grizzly-http-server-2.3.23.jar>;<jar|grizzly-framework-2.3.16.jar>;<jar|netty-all-4.0.23.Final.jar>;<jar|commons-codec-1.7.jar>
+includes=
