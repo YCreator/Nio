@@ -88,7 +88,7 @@ public class BlogServerInboundHandler extends ChannelInboundHandlerAdapter {
 			System.out.println(urlstr);
 			map.remove(ctx.hashCode());
 
-			res = get(urlstr);
+			res = get(urlstr, false);
 			Pattern pattern = Pattern.compile("<a\\starget=\"_blank\"\\shref=\".*?\"\\stitle=\".*?\">(.+?)</a>");
 			Matcher matcher = pattern.matcher(res);
 			List<Map<String, String>> list = new ArrayList<Map<String, String>>();
@@ -101,11 +101,11 @@ public class BlogServerInboundHandler extends ChannelInboundHandlerAdapter {
 		    	}
 		    	m = Pattern.compile("src=\".*?\"").matcher(s);
 		    	while(m.find()) {
-		    		maps.put("picPath", m.group().replaceAll("src=\"|\">", "").replace("\"", ""));
+		    		maps.put("picPath", m.group().replaceAll("src=\"|\">", "").replace("\"", "").replace("-140x98", ""));
 		    	}
 		    	maps.put("title", s.replaceAll("</?[^<]+>", "").replace("\t", ""));
 		    
-		    	String cont = get(maps.get("url"));
+		    	String cont = get(maps.get("url"), true);
 		    	Pattern p = Pattern.compile("<div class=\"article-entry\" id=\"article-entry\">([\\s\\S]*)<a\\sid=\"soft\\-link\"\\sname=\"soft\\-link\">");
 			    Matcher ma = p.matcher(cont);
 			    String ss = "";
@@ -113,9 +113,11 @@ public class BlogServerInboundHandler extends ChannelInboundHandlerAdapter {
 			    	//System.out.println(matcher.group());
 			    	ss = ss + ma.group();
 			    }
-			   
-			    maps.put("content", ss.replaceAll("<div class=\"article-entry\" id=\"article-entry\">", ""));
-		    	String noTagContent = ss
+			    maps.put("content", ss
+			    		.replaceAll("<div class=\"article-entry\" id=\"article-entry\">", "")
+			    		.replaceAll("<pre.*?>","<pre class=\"brush: javascript; gutter: true; first-line: 1 hljs\" style=\"margin: 15px auto; padding: 10px 15px; overflow-x: auto; color: rgb(51, 51, 51); word-break: break-all; word-wrap: break-word; white-space: pre-wrap; font-stretch: normal; font-size: 12px; line-height: 20px; font-family: &#39;courier new&#39;; border-width: 1px 1px 1px 4px; border-style: solid; border-color: rgb(221, 221, 221); background-color: rgb(251, 251, 251);\">")
+			    		.replaceAll("<p>", "<p style=\"margin-top: 0px; margin-bottom: 15px; padding: 0px; color: rgb(68, 68, 68); font-family: &#39;microsoft yahei&#39;; font-size: 14px; line-height: 25px; white-space: normal;\">"));
+			    String noTagContent = ss
 		    			.replaceAll("<script[^>]*?>.*?</script>", "")
 		    			.replaceAll("<[^>]*>", "")
 		    			.replaceAll("\t", "")
@@ -148,7 +150,7 @@ public class BlogServerInboundHandler extends ChannelInboundHandlerAdapter {
         ctx.close();
 	}
 
-	public String get(String surl) {
+	public String get(String surl, boolean isContent) {
 		HttpURLConnection conn = null;
 		String res = "";
 		try {
@@ -177,6 +179,9 @@ public class BlogServerInboundHandler extends ChannelInboundHandlerAdapter {
 
 				while ((inputLine = in.readLine()) != null) {
 					sb.append(inputLine);
+					if (isContent) {
+						sb.append("\r\n");
+					}	
 				}
 
 				res = sb.toString();
